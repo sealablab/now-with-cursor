@@ -1,60 +1,91 @@
-# forge-vhdl: VHDL Development with GitHub Copilot
+# forge-vhdl: VHDL Development with AI Assistants
 
-**AI-assisted VHDL components in VS Code / GitHub Codespaces**
+**AI-assisted VHDL components - Optimized for Cursor, GitHub Copilot, and Claude**
 
 [![Use This Template](https://img.shields.io/badge/Use%20This%20Template-2ea44f?style=for-the-badge&logo=github)](../../generate)
 
 ---
 
-## ⚡ Quick Start (3 steps, 2 minutes)
+## ⚡ Quick Start (Choose Your AI Assistant)
 
-### 1. Open in VS Code or GitHub Codespaces
+### Option 1: Cursor (Recommended for Local Development) ⭐
 
-**Local:**
+**Best for:** Full local workflow with multi-agent orchestration
+
 ```bash
+# 1. Open in Cursor
+cursor .
+
+# 2. Run environment detection
+uv run python .claude/env_detect.py
+
+# 3. In Cursor Composer (Cmd+I or Ctrl+I):
+"I need a PWM generator with 8-bit duty cycle control. 
+Execute the complete 3-agent workflow with incremental commits."
+```
+
+**Cursor will:**
+1. Generate specification (AI-First workflow: 2-5 min)
+2. Agent 1: Generate VHDL → Commit
+3. Agent 2: Design tests → Commit
+4. Agent 3: Implement & run tests → Commit
+5. Verify <20 lines output
+
+**Guide:** [CURSOR.md](CURSOR.md) - Complete Cursor workflow
+
+### Option 2: GitHub Copilot (VS Code / Codespaces)
+
+**Best for:** IDE-integrated development with inline suggestions
+
+```bash
+# 1. Open in VS Code
 code .
-```
 
-**Cloud (GitHub Codespaces):**
-- Click "Code" → "Codespaces" → "Create codespace on main"
-- Wait ~2 min for setup
-- VS Code opens in browser automatically
+# 2. Install extensions (GitHub Copilot, VHDL, Python)
 
-### 2. Install Extensions (one-click)
-
-VS Code will prompt: "This workspace recommends extensions"
-- Click **"Install All"** (GitHub Copilot, VHDL, Python)
-- Trust workspace when prompted (enables custom Copilot instructions)
-
-### 3. Create Your First Component
-
-Open Copilot Chat (`Ctrl+Shift+I` or `Cmd+Shift+I`):
-
-```
+# 3. In Copilot Chat (Ctrl+Shift+I):
 @workspace I need a PWM generator with 8-bit duty cycle control.
 Create the spec, VHDL entity/architecture, and P1 CocoTB tests.
 ```
 
-**Copilot will:**
-1. Generate specification in `workflow/specs/pending/`
-2. Create VHDL in `vhdl/components/utilities/`
-3. Create tests in `cocotb_tests/`
-4. Ensure P1 test output <20 lines
+**Guide:** [COPILOT.md](COPILOT.md) - Complete Copilot workflow
 
-**Run tests:**
-```bash
-uv run python cocotb_tests/run.py pwm_generator
-```
+### Option 3: Claude (Cloud / CLI)
 
-**Expected:** 3-4 tests pass, total output <20 lines, runtime <5 seconds.
+**Best for:** Requirements gathering and autonomous batch operations
+
+**Guide:** [CLAUDE.md](CLAUDE.md) - Complete Claude workflow
+
+**Comparison:** [.github/AI_COMPARISON.md](.github/AI_COMPARISON.md)
 
 ---
 
 ## 🎯 What Makes This Different
 
-### GitHub Copilot Integration
+### Multi-AI Assistant Support
 
-**Custom instructions auto-loaded** (`.github/copilot-instructions.md`):
+**Cursor (Recommended for Local):**
+- ✅ **Multi-agent orchestration** - Run complete 3-agent workflow locally
+- ✅ **Real-time test execution** - See results immediately
+- ✅ **Incremental commits** - Automatic commits after each agent
+- ✅ **No handoff overhead** - Everything in one session
+- **Guide:** [CURSOR.md](CURSOR.md) | **Rules:** [.cursorrules](.cursorrules)
+
+**GitHub Copilot:**
+- ✅ **Inline suggestions** - Code completion as you type
+- ✅ **Chat-based development** - Iterative refinement
+- ✅ **IDE integration** - Full VS Code/Codespaces support
+- **Guide:** [COPILOT.md](COPILOT.md) | **Instructions:** [.github/copilot-instructions.md](.github/copilot-instructions.md)
+
+**Claude:**
+- ✅ **Autonomous agents** - Long-running batch operations
+- ✅ **Requirements gathering** - Structured interviews (2-5 min or 15-30 min)
+- ✅ **Cloud execution** - Zero setup in Claude Web/Codespaces
+- **Guide:** [CLAUDE.md](CLAUDE.md)
+
+### Standards Compliance (All Tools)
+
+**Auto-enforced across all AI assistants:**
 - ✅ P1 tests must output <20 lines (token-optimized for LLM feedback)
 - ✅ No FSM enums (uses constants for Verilog compatibility)
 - ✅ Reset hierarchy: `rst_n` → `clk_en` → `enable` (safety-first)
@@ -63,39 +94,25 @@ uv run python cocotb_tests/run.py pwm_generator
 
 **Result:** Standards-compliant VHDL automatically, no manual rules to remember.
 
-### Local + Remote Agent Workflow
-
-**Local/Remote (VS Code/Codespaces):** Interactive development
-- Copilot suggests code inline as you type
-- Chat answers questions about existing code
-- Iterative debugging with immediate feedback
-- File-focused context (current file + related files)
-
-**Remote Agent (Claude branch):** Autonomous batch operations
-- Requirements gathering (2-5 min or 15-30 min structured interview)
-- Multi-file generation (VHDL + tests + docs simultaneously)
-- Autonomous debugging with incremental commits
-- See [CLAUDE.md](CLAUDE.md) for details
-
-**Workflow:** Use Copilot daily (interactive) + Claude for big tasks (autonomous)
-
 ---
 
 ## 📚 Documentation
 
+**AI Assistant Guides:**
+- **[CURSOR.md](CURSOR.md)** ⭐ - Multi-agent orchestration (recommended for local)
+- **[COPILOT.md](COPILOT.md)** - IDE-integrated development
+- **[CLAUDE.md](CLAUDE.md)** - Autonomous agent workflows
+- **[.github/AI_COMPARISON.md](.github/AI_COMPARISON.md)** - Choose the right tool
+
 **Quick Start:**
 - [.github/COPILOT_QUICK_START.md](.github/COPILOT_QUICK_START.md) - 5-minute tutorial
 
-**Full Guide:**
-- [COPILOT.md](COPILOT.md) - Complete Copilot workflows
+**Standards & Guides:**
 - [docs/VHDL_CODING_STANDARDS.md](docs/VHDL_CODING_STANDARDS.md) - Style guide
 - [docs/PROGRESSIVE_TESTING_GUIDE.md](docs/PROGRESSIVE_TESTING_GUIDE.md) - P1/P2/P3 testing
 
-**Example Components:**
+**Examples:**
 - [workflow/specs/reference/](workflow/specs/reference/) - 5 gold-standard specs
-
-**Remote Agent Workflow:**
-- [CLAUDE.md](CLAUDE.md) - Autonomous 3-agent workflow (requirements → VHDL → tests)
 
 ---
 

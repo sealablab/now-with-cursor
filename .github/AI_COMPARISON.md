@@ -8,14 +8,66 @@
 
 | Task | Best Tool | Why |
 |------|-----------|-----|
-| **Requirements gathering** | Claude (CLI/Web) | Structured interviews, pattern recognition |
+| **Full local workflow** | **Cursor** ⭐ | Multi-agent orchestration, no handoff needed |
+| **Requirements gathering** | Cursor / Claude | Structured interviews, pattern recognition |
 | **Inline code completion** | GitHub Copilot | IDE-integrated, real-time suggestions |
 | **Single file editing** | GitHub Copilot | Fast iteration, immediate context |
-| **Multi-file generation** | Claude | Autonomous agents, cross-file awareness |
-| **Debugging tests** | GitHub Copilot | Interactive chat, quick fixes |
-| **Batch operations** | Claude | Autonomous execution, no token limits |
+| **Multi-file generation** | **Cursor** / Claude | Multi-agent orchestration, cross-file awareness |
+| **Debugging tests** | **Cursor** / GitHub Copilot | Real-time execution, interactive chat |
+| **Batch operations** | **Cursor** / Claude | Autonomous execution, local or cloud |
 | **Learning patterns** | GitHub Copilot | Inline docs, contextual examples |
-| **Complex refactoring** | Claude | Multi-file analysis, dependency tracking |
+| **Complex refactoring** | **Cursor** / Claude | Multi-file analysis, dependency tracking |
+| **Incremental commits** | **Cursor** | Automatic commits after each agent |
+
+---
+
+## Cursor (Multi-Agent Orchestration) ⭐ RECOMMENDED
+
+### Strengths
+✅ **Multi-agent orchestration** - Run complete 3-agent workflow locally  
+✅ **Real-time test execution** - See results immediately in terminal  
+✅ **Incremental commits** - Automatic commits after each agent completes  
+✅ **No handoff overhead** - Everything in one session (no git push/pull)  
+✅ **Better IDE integration** - File changes, terminal, git all visible  
+✅ **Terminal command execution** - Run tests directly and parse results  
+✅ **Long-running workflows** - Agent mode handles extended sessions  
+✅ **Full local execution** - No cloud dependency for agent workflows
+
+### Best Use Cases
+- Complete component generation (requirements → VHDL → tests) in one session
+- Multi-agent workflows with orchestration
+- Real-time test execution and debugging
+- Incremental development with automatic commits
+- Local development with full workflow control
+- Learning agent patterns and workflows
+
+### Typical Workflow
+```
+1. Open in Cursor IDE
+2. In Composer (Cmd+I): "Execute 3-agent workflow for [component]"
+3. Cursor orchestrates:
+   - Agent 0: Requirements (AI-First: 2-5 min)
+   - Agent 1: VHDL generation → Commit
+   - Agent 2: Test design → Commit
+   - Agent 3: Test implementation & execution → Commit
+4. Real-time test results shown
+5. Integration and final commit
+```
+
+### Example Commands
+```
+# In Cursor Composer (Cmd+I):
+I need a PWM generator. Execute the complete 3-agent workflow with incremental commits.
+
+# In Cursor Chat:
+Read workflow/specs/pending/[component].md and execute the 3-agent workflow.
+Act as Agent 1: Generate VHDL from this spec.
+Run tests: uv run python cocotb_tests/run.py [component]
+```
+
+### Documentation
+- **[CURSOR.md](../CURSOR.md)** - Main Cursor guide
+- **[.cursorrules](../.cursorrules)** - Custom rules for Cursor
 
 ---
 
@@ -108,9 +160,34 @@ Refactor all voltage conversions to use forge_voltage_*_pkg packages
 
 ---
 
-## Hybrid Workflow (RECOMMENDED)
+## Workflow Comparison
 
-**Combine the strengths of both tools for maximum productivity.**
+### Cursor Workflow (RECOMMENDED for Local Development)
+
+**Full local execution with multi-agent orchestration:**
+
+```
+Step 1: Cursor (Requirements)
+- In Composer: "I need [component]. Use AI-First workflow"
+- 2-5 minutes → Spec generated
+
+Step 2: Cursor (Agent Orchestration)
+- Composer orchestrates 3 agents in sequence
+- Agent 1: VHDL generation → Commit
+- Agent 2: Test design → Commit
+- Agent 3: Test execution → Commit
+
+Step 3: Cursor (Integration)
+- Review artifacts in IDE
+- Move to production
+- Final commit
+
+Total: 10-15 minutes, all local, no handoff
+```
+
+### Hybrid Workflow (Alternative for Cloud-only)
+
+**Combine local requirements with cloud agent execution:**
 
 ### Pattern 1: Requirements → Implementation → Integration
 
@@ -236,21 +313,25 @@ Claude (Validation)
 
 ## Feature Comparison Table
 
-| Feature | GitHub Copilot | Claude | Best Choice |
-|---------|----------------|--------|-------------|
-| **Inline completion** | ✅ Excellent | ❌ No | Copilot |
-| **Chat-based help** | ✅ Good | ✅ Excellent | Either |
-| **Multi-file generation** | ⚠️ Limited | ✅ Excellent | Claude |
-| **Requirements gathering** | ⚠️ Manual | ✅ Structured | Claude |
-| **Debugging assistance** | ✅ Interactive | ✅ Autonomous | Copilot (interactive), Claude (batch) |
-| **Test generation** | ✅ Good | ✅ Excellent | Either |
-| **Documentation** | ✅ Good | ✅ Excellent | Either |
-| **Refactoring** | ✅ File-focused | ✅ Cross-file | Copilot (small), Claude (large) |
-| **Learning mode** | ✅ Inline docs | ✅ Explanations | Copilot (quick), Claude (deep) |
-| **Token limits** | ✅ Low per message | ⚠️ Higher per session | Copilot (short), Claude (long) |
-| **IDE integration** | ✅ Native | ⚠️ Terminal/Web | Copilot |
-| **Autonomous execution** | ❌ No | ✅ Yes | Claude |
-| **Cost** | $ Per user/month | $$ Per usage | Depends on usage |
+| Feature | Cursor | GitHub Copilot | Claude | Best Choice |
+|---------|--------|----------------|--------|-------------|
+| **Multi-agent orchestration** | ✅ Excellent | ❌ No | ✅ Excellent | **Cursor (local)** / Claude (cloud) |
+| **Inline completion** | ✅ Good | ✅ Excellent | ❌ No | Copilot |
+| **Chat-based help** | ✅ Excellent | ✅ Good | ✅ Excellent | Cursor / Claude |
+| **Multi-file generation** | ✅ Excellent | ⚠️ Limited | ✅ Excellent | **Cursor** / Claude |
+| **Requirements gathering** | ✅ Structured | ⚠️ Manual | ✅ Structured | **Cursor** / Claude |
+| **Debugging assistance** | ✅ Real-time | ✅ Interactive | ✅ Autonomous | **Cursor** (real-time) |
+| **Test generation** | ✅ Excellent | ✅ Good | ✅ Excellent | **Cursor** / Claude |
+| **Test execution** | ✅ Real-time | ⚠️ Manual | ✅ Cloud | **Cursor** |
+| **Documentation** | ✅ Excellent | ✅ Good | ✅ Excellent | Either |
+| **Refactoring** | ✅ Cross-file | ✅ File-focused | ✅ Cross-file | **Cursor** / Claude |
+| **Learning mode** | ✅ Explanations | ✅ Inline docs | ✅ Explanations | Copilot (quick), Cursor/Claude (deep) |
+| **Token limits** | ✅ None (agent mode) | ✅ Low per message | ⚠️ Higher per session | **Cursor** / Copilot |
+| **IDE integration** | ✅ Excellent | ✅ Native | ⚠️ Terminal/Web | **Cursor** / Copilot |
+| **Autonomous execution** | ✅ Yes (local) | ❌ No | ✅ Yes (cloud) | **Cursor** (local) / Claude (cloud) |
+| **Incremental commits** | ✅ Automatic | ⚠️ Manual | ✅ Automatic | **Cursor** / Claude |
+| **Local execution** | ✅ Full | ✅ Full | ⚠️ CLI only | **Cursor** / Copilot |
+| **Cost** | $$ Per usage | $ Per user/month | $$ Per usage | Depends on usage |
 
 ---
 
@@ -331,6 +412,14 @@ Read workflow/AI_FIRST_REQUIREMENTS.md and gather requirements for [component]
 
 ## Best Practices Summary
 
+### When to Use Cursor ⭐ RECOMMENDED
+✅ **Full local workflow** - Complete 3-agent orchestration  
+✅ **Multi-agent workflows** - Requirements → VHDL → Tests in one session  
+✅ **Real-time test execution** - See results immediately  
+✅ **Incremental commits** - Automatic commits after each agent  
+✅ **Local development** - No cloud handoff needed  
+✅ **Learning agent patterns** - See how agents work together
+
 ### When to Use Copilot
 ✅ Writing code in your familiar IDE  
 ✅ Quick iterations and debugging  
@@ -339,22 +428,24 @@ Read workflow/AI_FIRST_REQUIREMENTS.md and gather requirements for [component]
 ✅ Immediate feedback needed
 
 ### When to Use Claude
-✅ Initial requirements gathering  
-✅ Multi-file generation  
-✅ Long-running autonomous tasks  
-✅ Complex cross-file analysis  
-✅ Batch operations
+✅ Cloud-only environments (no local setup)  
+✅ Requirements gathering in CLI  
+✅ Long-running autonomous tasks (cloud)  
+✅ Complex cross-file analysis (cloud)  
+✅ Batch operations (cloud)
 
-### When to Use Both (Hybrid)
-✅ **Every project!**
-- Claude: Gather requirements
-- Copilot: Implement interactively
-- Claude: Batch testing/docs
-- Copilot: Final integration
+### When to Use Multiple Tools
+✅ **Cursor for workflow** - Full local agent orchestration  
+✅ **Copilot for editing** - Quick inline suggestions  
+✅ **Claude for cloud** - When local setup not available
 
 ---
 
 ## Resources
+
+**Cursor:**
+- [CURSOR.md](../CURSOR.md) ⭐ - Main Cursor guide
+- [.cursorrules](../.cursorrules) - Custom rules
 
 **Copilot:**
 - [COPILOT.md](../COPILOT.md)
@@ -366,12 +457,12 @@ Read workflow/AI_FIRST_REQUIREMENTS.md and gather requirements for [component]
 - [.claude/CLAUDE_LOCAL.md](../.claude/CLAUDE_LOCAL.md)
 - [.claude/CLAUDE_CLOUD.md](../.claude/CLAUDE_CLOUD.md)
 
-**Hybrid:**
+**Comparison:**
 - This file (AI_COMPARISON.md)
 - [workflow/README.md](../workflow/README.md)
 
 ---
 
-**Version:** 3.2.0-hybrid  
-**Last Updated:** 2025-11-09  
+**Version:** 3.2.0-cursor  
+**Last Updated:** 2025-01-XX  
 **Maintained by:** Moku Instrument Forge Team

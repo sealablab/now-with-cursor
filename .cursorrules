@@ -1,0 +1,290 @@
+# Cursor Rules for forge-vhdl
+
+This repository is a VHDL development framework with AI-assisted workflows, progressive testing, and production-ready components optimized for Cursor's multi-agent orchestration.
+
+## Core Principles
+
+1. **Progressive Testing**: P1 tests MUST output <20 lines (token-optimized for LLM feedback)
+2. **No FSM Enums**: Use `constant STATE_IDLE : std_logic_vector(1 downto 0) := "00";` for Verilog compatibility
+3. **Reset Hierarchy**: Always `if rst_n = '0' then ... elsif clk_en = '1' then ... elsif enable = '1'`
+4. **Voltage Type System**: Use function-based converters (no custom types) from forge_voltage_*_pkg packages
+5. **Multi-Agent Orchestration**: Cursor can run the complete 3-agent workflow locally with incremental commits
+
+## Multi-Agent Workflow
+
+When user requests component generation, orchestrate the 3-agent workflow:
+
+**Agent 0: Requirements Gathering**
+- Use AI-First workflow (2-5 min) or Engineer workflow (15-30 min)
+- Generate specification in `workflow/specs/pending/[component].md`
+- Commit: `"spec: Add [component] specification"`
+
+**Agent 1: forge-vhdl-component-generator**
+- Read `.claude/agents/forge-vhdl-component-generator/agent.md`
+- Generate VHDL entity/architecture from spec
+- Save to `workflow/artifacts/vhdl/[component].vhd`
+- Commit: `"feat: Generate [component] VHDL"`
+
+**Agent 2: cocotb-progressive-test-designer**
+- Read `.claude/agents/cocotb-progressive-test-designer/agent.md`
+- Design P1 test architecture from VHDL
+- Save to `workflow/artifacts/tests/[component]_test_strategy.md`
+- Commit: `"test: Design [component] test architecture"`
+
+**Agent 3: cocotb-progressive-test-runner**
+- Read `.claude/agents/cocotb-progressive-test-runner/agent.md`
+- Implement P1 tests from strategy
+- Run: `uv run python cocotb_tests/run.py [component]`
+- Verify <20 lines output
+- Commit: `"test: Implement and run [component] P1 tests"`
+
+**All agents run in sequence, with incremental commits after each completes.**
+
+## Quick Context Loading
+
+When user asks about VHDL development, load context from:
+- `llms.txt` - Component catalog and quick reference (~800 tokens)
+- `CURSOR.md` - Main Cursor development guide
+- `.claude/agents/*/agent.md` - Agent definitions for orchestration
+- `workflow/specs/reference/` - Gold-standard examples (5 components)
+
+## Common Workflows
+
+### Creating a New Component (Full Workflow)
+
+**In Cursor Composer (`Cmd+I`):**
+```
+I need a [component description]. Execute the complete 3-agent workflow:
+1. Generate specification using AI-First requirements workflow
+2. Agent 1: Generate VHDL entity/architecture
+3. Agent 2: Design P1 test architecture
+4. Agent 3: Implement and run P1 tests
+5. Make incremental commits after each agent completes
+```
+
+**Or step-by-step in Chat:**
+1. Requirements: "Use AI-First workflow to create spec for [component]"
+2. Agent 1: "Read spec and act as Agent 1 to generate VHDL"
+3. Agent 2: "Read VHDL and act as Agent 2 to design tests"
+4. Agent 3: "Read test strategy and act as Agent 3 to implement and run tests"
+
+### Debugging Test Failures
+
+1. Check `docs/COCOTB_TROUBLESHOOTING.md` for common issues
+2. Most common: `'HierarchyObject' object has no attribute 'value'` → Use test wrapper for `real`/`boolean` types
+3. Always disable GHDL warnings in P1 tests (filter level: aggressive)
+4. Run tests directly: `uv run python cocotb_tests/run.py [component]`
+5. Parse output to verify <20 lines
+
+### Adding Tests
+
+- P1: 2-4 essential tests, <20 lines output, <5 sec runtime
+- P2: 5-10 tests including edge cases, <50 lines, <30 sec
+- P3: 15-25 comprehensive tests, <100 lines, <2 min
+- Test levels controlled by `TEST_LEVEL` environment variable
+
+## File Structure Context
+
+```
+vhdl/
+├── packages/        # Voltage utilities, serialization, common types
+├── components/
+│   ├── utilities/   # Clock dividers, triggers
+│   └── debugging/   # FSM observers, hierarchical encoders
+
+cocotb_tests/        # VHDL simulation tests (CocoTB + GHDL)
+├── run.py           # Test runner (supports P1/P2/P3 levels)
+└── test_*.py        # Individual component tests
+
+workflow/
+├── specs/
+│   ├── reference/   # 5 gold-standard examples
+│   ├── pending/     # Work in progress
+│   └── completed/   # Implemented specs
+└── artifacts/       # Generated VHDL/tests (temporary)
+
+.claude/agents/      # Agent definitions for orchestration
+├── forge-vhdl-component-generator/
+├── cocotb-progressive-test-designer/
+└── cocotb-progressive-test-runner/
+
+docs/                # Detailed guides (load only when needed)
+scripts/             # GHDL output filter, cloud setup
+```
+
+## Code Generation Guidelines
+
+### VHDL Entity Template
+```vhdl
+entity forge_<category>_<name> is
+  generic (
+    ACTIVE_VALUE : std_logic := '1'  -- Use std_logic, not boolean
+  );
+  port (
+    -- Clock and reset (always first)
+    clk     : in  std_logic;
+    rst_n   : in  std_logic;
+    
+    -- Control signals
+    clk_en  : in  std_logic := '1';
+    enable  : in  std_logic := '1';
+    
+    -- Data signals (prefixed)
+    data_in  : in  std_logic_vector;
+    data_out : out std_logic_vector;
+    
+    -- Status signals (prefixed)
+    stat_ready : out std_logic
+  );
+end entity;
+```
+
+### CocoTB Test Template (P1)
+```python
+import cocotb
+from cocotb.triggers import RisingEdge, ClockCycles
+from cocotb.clock import Clock
+
+@cocotb.test()
+async def test_reset(dut):
+    """P1: Verify reset behavior"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 2)
+    assert dut.data_out.value == 0, "Reset failed"
+    
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 1)
+```
+
+## Test Output Standards
+
+**P1 test output should look like:**
+```
+test_reset (test_component.test_reset)      PASS     0.05s
+test_basic_operation (test_component.test_basic_operation)  PASS     0.08s
+test_enable_control (test_component.test_enable_control)    PASS     0.06s
+
+PASSED: 3 tests in 0.19s
+```
+
+**NOT like this (too verbose):**
+```
+     0.00ns INFO     cocotb.gpi                         __init__.py:302  in _initialise_testbench           Did not find ghdl.stdin, signals may not be accessible
+     0.00ns INFO     cocotb.regression                  regression.py:237 in initialise                     Random seed is 1234567890
+[... 280 more lines of noise ...]
+```
+
+## Integration with Existing Components
+
+When suggesting code that uses existing components:
+- Check `llms.txt` for available components
+- Use voltage packages for conversions: `forge_voltage_5v_bipolar_pkg` (most common for Moku)
+- Use `forge_common_pkg.FORGE_READY` for handshaking patterns
+- Reference `forge_util_clk_divider` for clock management
+
+## Terminal Command Execution
+
+Cursor can execute terminal commands directly. When running tests:
+
+```bash
+# Run P1 tests
+uv run python cocotb_tests/run.py [component]
+
+# Check output line count
+uv run python cocotb_tests/run.py [component] | wc -l
+
+# Should be <20 for P1 tests
+```
+
+**After running tests, parse output to:**
+- Count pass/fail tests
+- Check total line count (<20 for P1)
+- Identify any errors
+- Iterate with Agent 3 if needed
+
+## Incremental Commits
+
+**Make commits after each agent completes:**
+
+```bash
+# After Agent 1
+git add workflow/artifacts/vhdl/[component].vhd
+git commit -m "feat: Generate [component] VHDL"
+
+# After Agent 2
+git add workflow/artifacts/tests/[component]_test_strategy.md
+git commit -m "test: Design [component] test architecture"
+
+# After Agent 3
+git add workflow/artifacts/tests/[component]_tests/
+git commit -m "test: Implement and run [component] P1 tests"
+```
+
+## Token Efficiency
+
+- Start with `llms.txt` for quick lookups (800 tokens)
+- Only load full docs when user asks specific questions
+- Use reference specs as templates rather than generating from scratch
+- Progressive testing reduces iteration cycles (P1 feedback is fast and clear)
+- Agent definitions are loaded only when orchestrating agents
+
+## Common Pitfalls to Avoid
+
+1. ❌ Using enums for FSM states (breaks Verilog compatibility)
+2. ❌ Using `real` or `boolean` in entity ports (CocoTB can't access)
+3. ❌ Verbose test output (P1 must be <20 lines)
+4. ❌ Missing reset hierarchy (rst_n → clk_en → enable)
+5. ❌ Random port ordering (always: clk, rst_n, clk_en, enable, data, status)
+6. ❌ Skipping incremental commits (makes debugging harder)
+
+## Environment Detection
+
+If user asks about setup:
+- Run: `uv run python .claude/env_detect.py`
+- Local: Uses GHDL from system (brew/apt)
+- Cloud: Auto-installs GHDL via `scripts/cloud_setup_with_ghdl.py`
+
+## Agent Orchestration Best Practices
+
+**When orchestrating agents:**
+1. Load agent definition before acting as that agent
+2. Read previous agent's output before starting next agent
+3. Make incremental commits after each agent completes
+4. Run tests after Agent 3 completes
+5. Verify test output <20 lines for P1
+6. Iterate if tests fail or output too verbose
+
+**Example orchestration:**
+```
+1. Read .claude/agents/forge-vhdl-component-generator/agent.md
+2. Act as Agent 1: Generate VHDL from workflow/specs/pending/[component].md
+3. Save to workflow/artifacts/vhdl/[component].vhd
+4. Commit: "feat: Generate [component] VHDL"
+5. Read .claude/agents/cocotb-progressive-test-designer/agent.md
+6. Act as Agent 2: Design tests from workflow/artifacts/vhdl/[component].vhd
+7. Save to workflow/artifacts/tests/[component]_test_strategy.md
+8. Commit: "test: Design [component] test architecture"
+9. Read .claude/agents/cocotb-progressive-test-runner/agent.md
+10. Act as Agent 3: Implement and run tests
+11. Run: uv run python cocotb_tests/run.py [component]
+12. Verify <20 lines output
+13. Commit: "test: Implement and run [component] P1 tests"
+```
+
+## Additional Resources
+
+- Full workflow guide: `workflow/README.md`
+- Requirements gathering: `workflow/AI_FIRST_REQUIREMENTS.md` (fast) or `workflow/ENGINEER_REQUIREMENTS.md` (detailed)
+- Troubleshooting: `docs/COCOTB_TROUBLESHOOTING.md`
+- Standards: `docs/VHDL_CODING_STANDARDS.md` (600 lines - load only when needed)
+- Cursor guide: `CURSOR.md` - Complete Cursor-specific workflow
+
+---
+
+**Version:** 3.2.0-cursor
+**Optimized for:** Cursor IDE with multi-agent orchestration
+**Original framework:** forge-vhdl (Claude-optimized, Copilot-optimized)
+

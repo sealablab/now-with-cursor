@@ -5,15 +5,21 @@
 ## Quick Reference
 
 **What:** Production-ready GitHub template with reusable VHDL components + token-efficient CocoTB tests
-**Where:** Works everywhere - GitHub Copilot (VS Code/JetBrains), Claude Code (Web/CLI), GitHub Codespaces
+**Where:** Works everywhere - Cursor (multi-agent), GitHub Copilot (VS Code/JetBrains), Claude Code (Web/CLI), GitHub Codespaces
 **Setup:** Zero config in cloud • `brew install ghdl` for local • Env detection: `uv run python .claude/env_detect.py`
 **Test:** CocoTB + GHDL filter (P1 tests <20 lines, 98% noise reduction vs 287 lines)
-**AI Tools:** GitHub Copilot (IDE-integrated) + Claude (autonomous agents) - Hybrid workflow recommended
+**AI Tools:** Cursor (multi-agent orchestration) • GitHub Copilot (IDE-integrated) • Claude (autonomous agents) - Choose based on workflow
 **Template:** Clone from https://github.com/vmars-20/forge-vhdl-3v3-vmars → Customize your copy!
 
 ## AI Assistant Guides
 
-**GitHub Copilot Edition** ⭐ NEW!
+**Cursor Edition** ⭐ RECOMMENDED for Local Development!
+- **Guide:** [CURSOR.md](CURSOR.md) - Multi-agent orchestration locally
+- **Custom Rules:** [.cursorrules](.cursorrules) - Cursor-specific instructions
+- **Best for:** Full local workflow, multi-agent orchestration, incremental commits, real-time test execution
+- **Key Advantage:** Run complete 3-agent workflow locally (no cloud handoff needed)
+
+**GitHub Copilot Edition**
 - **Guide:** [COPILOT.md](COPILOT.md) - IDE-integrated development
 - **Custom Instructions:** [.github/copilot-instructions.md](.github/copilot-instructions.md)
 - **Best for:** Inline suggestions, chat-based development, iterative workflows
@@ -22,7 +28,7 @@
 - **Guide:** [CLAUDE.md](CLAUDE.md) - Autonomous agent workflows
 - **Local Guide:** [.claude/CLAUDE_LOCAL.md](.claude/CLAUDE_LOCAL.md)
 - **Cloud Guide:** [.claude/CLAUDE_CLOUD.md](.claude/CLAUDE_CLOUD.md)
-- **Best for:** Requirements gathering, multi-file generation, batch operations
+- **Best for:** Requirements gathering, multi-file generation, batch operations (cloud)
 
 **Comparison:** [.github/AI_COMPARISON.md](.github/AI_COMPARISON.md) - Choose the right tool for each task
 
@@ -154,7 +160,20 @@ docs/               # Testing standards, guides, patterns
 
 **For brand new components (DEFAULT - Students/Beginners):**
 
-**🔄 HYBRID WORKFLOW (RECOMMENDED for Local CLI users):**
+**🔄 CURSOR WORKFLOW (RECOMMENDED for Local Development):**
+1. **Cursor:** Open in Cursor IDE (`cursor .`)
+2. **Cursor Composer:** Say: "I need a [component]. Execute the complete 3-agent workflow with incremental commits"
+3. **Cursor:** Orchestrates all agents locally:
+   - Agent 0: Requirements gathering (AI-First: 2-5 min)
+   - Agent 1: VHDL generation → Commit
+   - Agent 2: Test design → Commit
+   - Agent 3: Test implementation & execution → Commit
+4. **Cursor:** Real-time test execution, <20 lines output verified
+5. **Cursor:** Integration: Move artifacts to production → Final commit
+
+**💡 Key Advantage:** Everything local! No git push/pull handoff needed.
+
+**🔄 HYBRID WORKFLOW (Alternative for Cloud-only users):**
 1. **Local:** Run `/forge-start` → Choose Student (AI-First) workflow
 2. **Local:** Answer 2-3 questions → Spec generated in `workflow/specs/pending/`
 3. **Local:** Commit spec: `git add workflow/specs/pending/ && git commit && git push`
@@ -167,10 +186,12 @@ docs/               # Testing standards, guides, patterns
 - `git fetch origin claude && git log origin/claude --oneline` - View incremental commits
 - `git diff main...origin/claude` - See generated artifacts
 
-**Why hybrid?**
-- Local CLI: Fast interactive requirements (output settings control)
-- Claude Web: Unlimited agent execution (no token limits, auto GHDL setup, incremental commits)
-- Local CLI: Final review and integration (familiar tooling)
+**Why Cursor > Hybrid?**
+- ✅ Full local execution (no handoff overhead)
+- ✅ Real-time test execution and feedback
+- ✅ Better IDE integration (file changes, terminal)
+- ✅ Incremental commits in one session
+- ✅ Multi-agent orchestration built-in
 
 **Cloud-only workflow (Claude Web or Codespaces):**
 1. **AI-First requirements** - Ask Claude: "I need a [component description]. Use the AI-First requirements workflow."
